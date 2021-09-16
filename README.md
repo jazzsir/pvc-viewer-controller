@@ -1,28 +1,61 @@
-<img src="https://www.kubeflow.org/images/logo.svg" width="100">
-Kubeflow the cloud-native platform for machine learning operations - pipelines, training and deployment.
+# GSoC 2020 - TENSORBOARD CONTROLLER
 
----
+### Related Closed Issues
 
-## Documentation
-Please refer to the official docs at [kubeflow.org](http://kubeflow.org).
+- [Extend Tensorboard Controller to Support PVCs #5039](https://github.com/kubeflow/kubeflow/issues/5039)
 
-## Working Groups
-The Kubeflow community is organized into working groups (WGs) with associated repositories, that focus on specific pieces of the ML platform. 
+- [Tensorboard controller creates servers that always mount user-gcp-sa secret #5065](https://github.com/kubeflow/kubeflow/issues/5065)
 
-* [AutoML](https://github.com/kubeflow/community/tree/master/wg-automl)
-* [Deployment](https://github.com/kubeflow/community/tree/master/wg-deployment)
-* [Manifests](https://github.com/kubeflow/community/tree/master/wg-manifests)
-* [Notebooks](https://github.com/kubeflow/community/tree/master/wg-notebooks)
-* [Pipelines](https://github.com/kubeflow/community/tree/master/wg-pipelines)
-* [Serving](https://github.com/kubeflow/community/tree/master/wg-serving)
-* [Training](https://github.com/kubeflow/community/tree/master/wg-training)
+- [Tensorboard CR doesn't contain information about the Tensorboard Server being ready or not #5166](https://github.com/kubeflow/kubeflow/issues/5166)
 
-## Quick Links
-* [Prow test dashboard](https://k8s-testgrid.appspot.com/sig-big-data)
-* [Prow jobs dashboard](https://prow.k8s.io/?repo=kubeflow%2Fkubeflow)
-* [PR Dashboard](https://k8s-gubernator.appspot.com/pr)
-* [Argo UI for E2E tests](http://testing-argo.kubeflow.org)
+### Related Pull Requests
 
-## Get Involved
-Please refer to the [Community](https://www.kubeflow.org/docs/about/community/) page.
+- [Mount GCP secret only when accessing Google storage #5069](https://github.com/kubeflow/kubeflow/pull/5069)
 
+- [Add scheduling functionality for Tensorboard servers that use RWO PVCs as log storages #5218](https://github.com/kubeflow/kubeflow/pull/5218)
+
+- [Add functionality to inform TWA frontend about the status of Tensorboard servers #5259](https://github.com/kubeflow/kubeflow/pull/5259)
+
+Prequisites to build and run the controller:
+
+1. GO
+
+2. Docker
+
+3. kustomize
+
+4. kubectl
+
+## RUN TENSORBOARD CONTROLLER LOCALLY
+
+Steps: 
+
+
+1. Clone the repository 
+
+2. Change directories to `components/tensorboard-controller`
+
+3. Generate and install manifests and build the controller:  `make install` 
+
+4. Run the controller locally:   `make run`
+
+If you want to enable the scheduling functionality for Tensorboard servers that use ReadWriteOnce PVCs as log storages, then set the `RWO_PVC_SCHEDULING` to `true` and run: `RWO_PVC_SCHEDULING="true" make run`
+
+## BUILD TENSORBOARD CONTROLLER IMAGE AND DEPLOY TO CLUSTER
+
+1. Clone the repository 
+
+2. Change directories to `components/tensorboard-controller`
+
+3. Generate and install manifests and build the controller: `make manifests` 
+
+4. Build and push the docker image: `make docker-build docker-push IMG=YOUR_IMAGE_NAME`
+
+5. Deploy the Tensorboard controller: `make deploy IMG=YOUR_IMAGE_NAME`
+
+If you want to enable the scheduling functionality for Tensorboard servers that use ReadWriteOnce PVCs as log storages, then: 
+
+1. Change directories to `components/tensorboard-controller/config/manager`
+2. Modify the `manager.yaml` file by navigating to the `deployment.spec.template.spec` field and manually setting the value of the `RWO_PVC_SCHEDULING` env var to `"true"` in the manager container.
+
+3. Run: `make deploy IMG=YOUR_IMAGE_NAME`
